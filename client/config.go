@@ -60,6 +60,7 @@ type config struct {
 	ListenDevices                  string
 	LogLevel                       string
 	Minimize                       bool
+	NoGui                          bool
 	Offline                        bool
 	OfflinePath                    string
 	RecordPath                     string
@@ -220,6 +221,13 @@ func (config *config) setupCommonFlags() {
 		"minimize",
 		false,
 		"Automatically minimize the window.",
+	)
+
+	flag.BoolVar(
+		&config.NoGui,
+		"nogui",
+		false,
+		"Run headless: no dashboard window, no tray icon. Packet capture and upload keep working.",
 	)
 
 	flag.StringVar(

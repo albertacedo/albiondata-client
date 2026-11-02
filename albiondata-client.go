@@ -82,6 +82,31 @@ func main() {
 
 	log.AddHook(dashboard.NewLogHook())
 
+	// Headless mode (-nogui): no dashboard window and no tray icon. Wails is
+	// never initialised, so packet capture runs on the main goroutine and
+	// blocks there for the lifetime of the process.
+	if client.ConfigGlobal.NoGui {
+		// The console is only hidden automatically when no flags are given
+		// (see the top of main), so hide it explicitly here.
+		if runtime.GOOS == "windows" && console.Owned() {
+			console.Hide()
+		}
+
+		go func() {
+			time.Sleep(3 * time.Second)
+			checkCaptureDriver()
+		}()
+		startUpdater()
+
+		c := client.NewClient(version)
+		if err := c.Run(); err != nil {
+			log.Error(err)
+			log.Error("Packet capture has stopped due to an error. Check albiondata-client.log for details.")
+			os.Exit(1)
+		}
+		return
+	}
+
 	// Delayed rather than called inline here: this early in startup it'd
 	// print before Wails' own boot noise (Build Info/AssetServer Info/
 	// Platform Info/WebView2 environment lines, all logged during
