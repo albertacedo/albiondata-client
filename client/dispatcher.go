@@ -67,6 +67,9 @@ func createUploaders(targets []string) []uploader {
 			u = newHTTPUploader(target)
 		} else if target[0:4] == "nats" {
 			u = newNATSUploader(target)
+		} else if target[0:4] == "file" {
+			// file://C:/albion/orders.jsonl -> personal capture, no upload.
+			u = newFileUploader(strings.TrimPrefix(target, "file://"))
 		} else {
 			log.Infof("An invalid ingest target was specified: %v", target)
 			continue
